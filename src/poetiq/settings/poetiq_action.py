@@ -40,7 +40,9 @@ class AddSettings(BaseSplitActionSettings):
         default=ActionType.add, description="Action type"
     )
     package: str = Field(description="Package source (name, https, git)")
-    split: str = Field(description="Add to split pyproject.toml file in specified DIR")
+    split: Optional[str] = Field(
+        default=None, description="Add to split pyproject.toml file in specified DIR"
+    )
     local: str = Field(
         default="", description="Add local dependency to poetiq.toml in given path"
     )
@@ -53,6 +55,17 @@ class AddSettings(BaseSplitActionSettings):
         if self.split and self.local:
             raise PoetiqException(
                 "Provide either --split or --local argument, not both!"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def check_split_dir(self) -> Self:
+        """
+        Adding to all split dirs (split="") is not allowed.
+        """
+        if self.split == "":
+            raise PoetiqException(
+                "Provide specific split directory or none! (add to all split not allowed)"
             )
         return self
 
