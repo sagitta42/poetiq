@@ -42,10 +42,11 @@ class Poetry(BaseCommandRunner):
         project = self._pyproject.get_section("project")
         tool_poetry = self._pyproject.get_section("tool.poetry")
 
-        project_package_mode = project.get("package-mode", True)
-        tool_package_mode = tool_poetry.get("package-mode", True)
+        package_mode = project.get("package-mode", None)
+        if package_mode is None:
+            package_mode = tool_poetry.get("package-mode", True)
 
-        return project_package_mode or tool_package_mode
+        return package_mode
 
     def run(self, *args, **kwargs) -> list[str] | None:
         """
@@ -62,7 +63,9 @@ class Poetry(BaseCommandRunner):
             return self._run(*args, **kwargs)
         except subprocess.CalledProcessError:
             try:
-                return self._run(*args, info=False, capture_output=True, text=True, **kwargs)
+                return self._run(
+                    *args, info=False, capture_output=True, text=True, **kwargs
+                )
             except subprocess.CalledProcessError as e:
                 if "externally-managed-environment" in e.stdout:
                     self._rerun_poetry_pip(e)
