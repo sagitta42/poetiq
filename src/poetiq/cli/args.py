@@ -47,7 +47,7 @@ def add_str(
     exclusive (bool): this argument is exclusive to the given type of settings
     informative ( bool): (applies to flag only) if just --flag is provided with no option, assume const value
     """
-    arg_name = name
+    arg_name = help.alias(name)
     if flag:
         arg_name = f"--{arg_name}"
 

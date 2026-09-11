@@ -36,6 +36,11 @@ class BaseActionSettings(BaseModel):
         return ret
 
     @classmethod
+    def alias(cls, arg: str) -> str:
+        ret = cls._get_field(arg).alias or arg
+        return ret
+
+    @classmethod
     def description(cls, arg: str, exclusive: bool = False) -> str:
         """
         Field description util for argparse.
