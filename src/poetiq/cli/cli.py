@@ -30,35 +30,48 @@ class Subparser(enum.StrEnum):
 def add_template_arguments(parser: argparse.ArgumentParser):
     """
     Add arguments for new template creation.
-    """
-    add_str(parser, "name", help=BaseTemplateSettings, optional=False, flag=False)
 
-    add_str(
-        parser,
-        "type",
-        help=BaseTemplateSettings,
-        optional=True,
-        informative=False,
-        choices=[
-            setup_type.value for setup_type in [ActionType.package, ActionType.app]
-        ],
-    )
+    Create subparser for each template type.
+    Add arguments of that template type to the subparser.
+    """
+    subparsers = parser.add_subparsers(dest="command")
+
+    template_subparsers: dict[ActionType, argparse.ArgumentParser] = {}
+
+    for template_type in [ActionType.package, ActionType.app]:
+        t_subparser = subparsers.add_parser(
+            template_type.value, help=f"{template_type} setup"
+        )
+        add_str(
+            t_subparser, "name", help=BaseTemplateSettings, optional=False, flag=False
+        )
+        template_subparsers[template_type] = t_subparser
 
     add_db_arguments(
-        parser,
+        template_subparsers[ActionType.app],
         AppTemplateSettings,
         optional=True,
         choices=DBType.with_none(DBType.sql()),
     )
+    add_bool(template_subparsers[ActionType.app], "mongodb", AppTemplateSettings)
 
-    add_bool(parser, "mongodb", AppTemplateSettings, exclusive=True)
-
-    add_bool(parser, "settings", PackageTemplateSettings, exclusive=True, optional=True)
     add_bool(
-        parser, "progressbar", PackageTemplateSettings, exclusive=True, optional=True
+        template_subparsers[ActionType.package],
+        "settings",
+        PackageTemplateSettings,
+        optional=True,
     )
     add_bool(
-        parser, "my-base-model", PackageTemplateSettings, optional=True, exclusive=True
+        template_subparsers[ActionType.package],
+        "progressbar",
+        PackageTemplateSettings,
+        optional=True,
+    )
+    add_bool(
+        template_subparsers[ActionType.package],
+        "my-base-model",
+        PackageTemplateSettings,
+        optional=True,
     )
 
 

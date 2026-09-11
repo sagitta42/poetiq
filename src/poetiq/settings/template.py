@@ -52,7 +52,9 @@ class AppTemplateSettings(BaseTemplateSettings, DBSettings):
     type: Literal[ActionType.app] = Field(
         default=ActionType.app, description="Template type"
     )
-    db_type: DBType = Field(default=DBType.none, description="Database type")
+    db_type: DBType = Field(
+        default=DBType.none, description="Database type", alias="db"
+    )
     mongodb: bool = Field(default=False, description="Add MongoDB service")
 
     @classmethod
@@ -74,5 +76,6 @@ class AppTemplateSettings(BaseTemplateSettings, DBSettings):
                 "Not accepting MongoDB as DB type in app settings - reserved for the mongodb setting"
             )
         return self
+
 
 T_TemplateSettings = TypeVar("T_TemplateSettings", bound=BaseTemplateSettings)
