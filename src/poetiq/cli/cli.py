@@ -81,7 +81,7 @@ def add_microfunctionality_arguments(parser: argparse.ArgumentParser):
         help="Type of functionality",
     )
 
-    add_db_arguments(parser, DBSettings, optional=False, choices=DBType.sql())
+    add_db_arguments(parser, DBSettings, optional=True, choices=DBType.sql())
     add_str(
         parser,
         "subfolder",

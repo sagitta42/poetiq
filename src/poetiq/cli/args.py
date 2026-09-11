@@ -37,7 +37,7 @@ def add_str(
     informative: bool = False,
     exclusive: bool = False,
     choices: list[Any] | None = None,
-    **kwargs
+    **kwargs,
 ):
     """
     Add string argument.
@@ -51,6 +51,10 @@ def add_str(
     if flag:
         arg_name = f"--{arg_name}"
 
+    flag_kwargs = {}
+    if flag:
+        flag_kwargs["required"] = not optional
+
     parser.add_argument(
         arg_name,
         type=str,
@@ -59,5 +63,6 @@ def add_str(
         nargs="?" if (flag and informative) or (not flag and optional) else None,
         const=help.const(name) if flag and informative else None,
         help=help.description(name, exclusive=exclusive),
-        **kwargs
+        **flag_kwargs,
+        **kwargs,
     )
