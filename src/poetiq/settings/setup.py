@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Literal, Self
+from typing import Literal, Optional, Self
 
 from pydantic import Field, model_validator
+from pydantic_parse import ArgField
 
 from poetiq.enums import ActionType, DBType
 from poetiq.logger import logg
@@ -9,32 +10,34 @@ from poetiq.settings.base import BaseSetupSettings
 
 
 class ItemSetupSettings(BaseSetupSettings):
-    subfolder: Path = Field(default=Path(""), description="Subfolder of setup")
+    subfolder: Optional[Path] = ArgField(
+        default=None, description="Subfolder of setup", flag=True, optional=True
+    )
 
 
+# TODO: subparser dest = type
 class VSCodeSetupSettings(BaseSetupSettings):
-    type: Literal[ActionType.vscode] = Field(
-        default=ActionType.vscode, description="Setup type"
+    type: Literal[ActionType.vscode] = ArgField(
+        default=ActionType.vscode, description="Setup type", cli=False
     )
 
 
 class GitignoreSetupSettings(BaseSetupSettings):
-    type: Literal[ActionType.gitignore] = Field(
-        default=ActionType.gitignore, description="Setup type"
+    type: Literal[ActionType.gitignore] = ArgField(
+        default=ActionType.gitignore, description="Setup type", cli=False
     )
 
 
 class ProgressBarSettings(ItemSetupSettings):
-    type: Literal[ActionType.progressbar] = Field(
-        default=ActionType.progressbar, description="Setup type"
+    type: Literal[ActionType.progressbar] = ArgField(
+        default=ActionType.progressbar, description="Setup type", cli=False
     )
 
 
 class LoggerSettings(ItemSetupSettings):
-    type: Literal[ActionType.logger] = Field(
-        default=ActionType.logger, description="Setup type"
+    type: Literal[ActionType.logger] = ArgField(
+        default=ActionType.logger, description="Setup type", cli=False
     )
-
 
 
 class DBSettings(BaseSetupSettings):
@@ -42,15 +45,23 @@ class DBSettings(BaseSetupSettings):
     Settings for DB setup.
     """
 
-    type: Literal[ActionType.db] = Field(
-        default=ActionType.db, description="Setup type"
+    type: Literal[ActionType.db] = ArgField(
+        default=ActionType.db, description="Setup type", cli=False
     )
-    db_type: DBType = Field(default=DBType.sqlite, description="Database type")
-    pydantic_table: bool = Field(
-        default=False, description="Set up pydantic-table for alembic migrations"
+    db_type: DBType = ArgField(
+        default=DBType.sqlite,
+        description="Database type",
+        flag=True,
+        optional=False,
+        informative=False,
     )
-    dev_sqlite: bool = Field(
-        default=False, description="Development mode switch to SQLite"
+    pydantic_table: bool = ArgField(
+        default=False,
+        flag=True,
+        description="Set up pydantic-table for alembic migrations",
+    )
+    dev_sqlite: bool = ArgField(
+        default=False, flag=True, description="Development mode switch to SQLite"
     )
 
     @model_validator(mode="after")
@@ -78,6 +89,6 @@ class DotenvSettings(ItemSetupSettings):
     Settings for .env Settings class setup
     """
 
-    type: Literal[ActionType.envsettings] = Field(
-        default=ActionType.envsettings, description="Setup type"
+    type: Literal[ActionType.envsettings] = ArgField(
+        default=ActionType.envsettings, description="Setup type", cli=False
     )

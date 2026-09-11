@@ -1,6 +1,7 @@
 from typing import Literal, Self, TypeVar
 
 from pydantic import Field, model_validator
+from pydantic_parse import ArgField
 
 from poetiq.enums import ActionType, DBType
 from poetiq.settings.base import BaseSetupSettings
@@ -12,8 +13,10 @@ class BaseTemplateSettings(BaseSetupSettings):
     Common settings for any template.
     """
 
-    type: ActionType = Field(default=ActionType.package, description="Template type")
-    name: str = Field(description="Template/repository name")
+    type: ActionType = ArgField(
+        default=ActionType.package, description="Template type", cli=False
+    )
+    name: str = ArgField(description="Template/repository name")
 
     def core_settings(self) -> dict:
         ret = self.model_dump(exclude={"no_commit": True, "update": True, "name": True})
@@ -27,16 +30,19 @@ class PackageTemplateSettings(BaseTemplateSettings):
     Include option to set up .env pydantic settings.
     """
 
-    type: Literal[ActionType.package] = Field(
-        default=ActionType.package, description="Template type"
+    type: Literal[ActionType.package] = ArgField(
+        default=ActionType.package, description="Template type", cli=False
     )
-    settings: bool = Field(default=False, description="Set up .env Settings class")
-    progressbar: bool = Field(
-        default=False, description="Set up progress bar source code"
+    settings: bool = ArgField(
+        default=False, description="Set up .env Settings class", flag=True
     )
-    my_base_model: bool = Field(
+    progressbar: bool = ArgField(
+        default=False, description="Set up progress bar source code", flag=True
+    )
+    my_base_model: bool = ArgField(
         default=False,
         description="Set up MyBaseModel class with tree display() + logger",
+        flag=True,
     )
 
 
@@ -49,25 +55,20 @@ class AppTemplateSettings(BaseTemplateSettings, DBSettings):
     NOTE: SQL-type DB arrives via --db-type flag while mongodb with separate bool.
     """
 
-    type: Literal[ActionType.app] = Field(
-        default=ActionType.app, description="Template type"
+    type: Literal[ActionType.app] = ArgField(
+        default=ActionType.app, description="Template type", cli=False
     )
-    db_type: DBType = Field(
-        default=DBType.none, description="Database type", alias="db"
+    db_type: DBType = ArgField(
+        default=DBType.none,
+        description="Database type",
+        flag=True,
+        optional=True,
+        informative=False,
+        alias="db",
     )
-    mongodb: bool = Field(default=False, description="Add MongoDB service")
-
-    @classmethod
-    def const(cls, arg: str) -> str:
-        """
-        Constant value for argument.
-
-        If --db flag is used without value, default to SQLite.
-        Use default value as const for all other arguments.
-        """
-        if arg == "db":
-            return DBType.sqlite
-        return super().const(arg)
+    mongodb: bool = ArgField(
+        default=False, description="Add MongoDB service", flag=True
+    )
 
     @model_validator(mode="after")
     def check_db_type(self) -> Self:

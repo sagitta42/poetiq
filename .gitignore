@@ -1,3 +1,5 @@
+poetiq.toml
+
 # build assets
 src/*/_build_assets
 

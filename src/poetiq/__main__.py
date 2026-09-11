@@ -1,41 +1,45 @@
 import argparse
 from pathlib import Path
 import sys
-from poetiq.cli.cli import (
+
+from pydantic_parse import PydanticArgParser
+from poetiq.cli import (
     Subparser,
     add_microfunctionality_arguments,
     add_template_arguments,
-)
-from poetiq.cli.poetiq_action import (
-    add_install_arguments,
-    add_poetiq_add_arguments,
-    add_poetiq_lock_arguments,
 )
 from poetiq.core import launch_action, update
 from poetiq.exceptions import PoetiqException
 from poetiq.logger import logg
 from poetiq.enums import ActionType
+from poetiq.settings.poetiq_action import AddSettings, InstallSettings, LockSettings
 from poetiq.utils.poetry import Poetry
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = PydanticArgParser()
     subparsers = parser.add_subparsers(dest="command")
 
     install_subparser = subparsers.add_parser(
         Subparser.install.value, help=Subparser.install.descr()
     )
-    add_install_arguments(install_subparser)
+    install_subparser.add_arguments_from_model(
+        InstallSettings, kwargs={"split": {"metavar": "DIR"}}
+    )
 
     add_subparser = subparsers.add_parser(
         Subparser.add.value, help=Subparser.add.descr()
     )
-    add_poetiq_add_arguments(add_subparser)
+    add_subparser.add_arguments_from_model(
+        AddSettings, kwargs={"local": {"metavar": "PATH"}, "split": {"metavar": "DIR"}}
+    )
 
     lock_subparser = subparsers.add_parser(
         Subparser.lock.value, help=Subparser.lock.descr()
     )
-    add_poetiq_lock_arguments(lock_subparser)
+    lock_subparser.add_arguments_from_model(
+        LockSettings, kwargs={"split": {"metavar": "DIR"}}
+    )
 
     subparsers.add_parser(Subparser.init.value, help="basic no-interaction init")
 

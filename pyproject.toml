@@ -6,6 +6,7 @@ dependencies = [
   "pyyaml (>=6.0.3,<7.0.0)",
   "pydantic (>=2.13.4,<3.0.0)",
   "send2trash (>=2.1.0,<3.0.0)",
+  "pydantic-parse @ (==0.1.2)",
 ]
 description = "Higher level wrapper for poetry for smart install operations and advanced package template creation"
 name = "poetiq"

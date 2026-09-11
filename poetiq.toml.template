@@ -1,0 +1,2 @@
+[dependency-groups]
+local = ["pydantic-parse @ /path/to/pydantic-parse/"]
