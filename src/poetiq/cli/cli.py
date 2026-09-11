@@ -65,30 +65,30 @@ def add_template_arguments(parser: argparse.ArgumentParser):
 def add_microfunctionality_arguments(parser: argparse.ArgumentParser):
     """
     Add arguments for adding functionality to given parser.
+
+    Create subparser for each supported setup action type.
+    Add arguments of that setup to subparser.
     """
-    parser.add_argument(
-        "type",
-        type=str,
-        choices=[
-            setup_type.value
-            for setup_type in [
-                ActionType.vscode,
-                ActionType.gitignore,
-                ActionType.db,
-                ActionType.logger,
-            ]
-        ],
-        help="Type of functionality",
-    )
 
-    add_db_arguments(parser, DBSettings, optional=True, choices=DBType.sql())
-    add_str(
-        parser,
-        "subfolder",
-        LoggerSettings,
-        optional=True,
-        informative=False,
-        exclusive=True,
-    )
+    subparsers = parser.add_subparsers(dest="command")
 
-    add_bool(parser, "no-commit", BaseSetupSettings)
+    for setup_type in [ActionType.vscode, ActionType.gitignore, ActionType.logger]:
+        setup_subparser = subparsers.add_parser(
+            setup_type.value, help=f"{setup_type} setup"
+        )
+        add_bool(setup_subparser, "no-commit", BaseSetupSettings)
+
+        if setup_type == ActionType.logger:
+            add_str(
+                setup_subparser,
+                "subfolder",
+                LoggerSettings,
+                optional=True,
+                informative=False,
+            )
+
+    db_subparser = subparsers.add_parser(
+        ActionType.db.value, help=f"{ActionType.db} setup"
+    )
+    # TODO: db type in DB subparser as non-flag
+    add_db_arguments(db_subparser, DBSettings, optional=False, choices=DBType.sql())

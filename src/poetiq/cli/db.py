@@ -22,10 +22,9 @@ def add_db_arguments(
         "db-type",
         help=help,
         optional=optional,
-        exclusive=True,
         informative=False,
         choices=choices,
     )
 
-    add_bool(parser, "dev-sqlite", help=help, exclusive=True)
-    add_bool(parser, "pydantic-table", help=help, exclusive=True)
+    add_bool(parser, "dev-sqlite", help=help)
+    add_bool(parser, "pydantic-table", help=help)

@@ -62,9 +62,12 @@ def main():
     logg.debug(vars(args))
 
     settings_args = vars(args).copy()
-    command = Subparser(settings_args.pop("command"))
-    if command.name in ActionType:
-        settings_args["type"] = command
+    subparser_command = settings_args.pop("command")
+    if subparser_command in ActionType:
+        command = ActionType(subparser_command)
+        settings_args["type"] = subparser_command
+    else:
+        command = Subparser(subparser_command)
 
     # TODO: attach exec() to parser, define elsewhere
     try:
