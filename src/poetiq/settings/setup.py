@@ -1,7 +1,7 @@
 from pathlib import Path
-from typing import Literal, Optional, Self
+from typing import Literal, Self
 
-from pydantic import Field, model_validator
+from pydantic import model_validator
 from pydantic_parse import ArgField
 
 from poetiq.enums import ActionType, DBType
@@ -10,8 +10,8 @@ from poetiq.settings.base import BaseSetupSettings
 
 
 class ItemSetupSettings(BaseSetupSettings):
-    subfolder: Optional[Path] = ArgField(
-        default=None, description="Subfolder of setup", flag=True, optional=True
+    subfolder: Path = ArgField(
+        default=Path(""), description="Subfolder of setup", flag=True, optional=True
     )
 
 
