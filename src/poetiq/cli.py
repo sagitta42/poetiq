@@ -40,6 +40,15 @@ class SetupTypeSettings(enum.Enum):
         return cls[action_type.name].value
 
 
+class SetupDescr(enum.StrEnum):
+    app = "synchronous 3-tier request-response app template setup"
+    package = "python package setup"
+
+    @classmethod
+    def from_template_type(cls, template_type: ActionType) -> str:
+        return cls[template_type.name].value
+
+
 def add_template_arguments(parser: PydanticArgParser):
     """
     Add arguments for new template creation.
@@ -51,7 +60,7 @@ def add_template_arguments(parser: PydanticArgParser):
 
     for template_type in [ActionType.package, ActionType.app]:
         t_subparser = subparsers.add_parser(
-            template_type.value, help=f"{template_type} setup"
+            template_type.value, help=SetupDescr.from_template_type(template_type)
         )
 
         settings_class = SetupTypeSettings.from_action_type(template_type)

@@ -36,20 +36,19 @@ options:
   -h, --help            show this help message and exit
 ```
 
-### Install [split/dev] dependencies
+### Install split/local dependencies
 
 ```bash
 $ poetiq install -h
-usage: poetiq install [-h] [--split] [--local] [package]
+usage: poetiq install [-h] [--split [DIR]] [--local] package
 
 positional arguments:
-  package     Specific package to install in split or local model; otherwise all
-              local/split
+  package        Specific package to install in split or local model; otherwise all local/split
 
 options:
-  -h, --help  show this help message and exit
-  --split     Install from multiple split pyproject.toml files defined in poetiq.toml
-  --local     Install local dependencies defined in poetiq.toml
+  -h, --help     show this help message and exit
+  --split [DIR]  Install from split pyproject.toml files (all defined in poetiq.toml or given DIR)
+  --local        Install local dependencies defined in poetiq.toml
 ```
 
 Perform smart poetry install:
@@ -84,19 +83,19 @@ Specify a packge to perform local install with `poetiq install --local my-packag
 See detailed examples in [Install examples](#install-examples)
 
 
-### Add [split/dev] dependency
+### Add split/local dependency
 
 ```bash
 $ poetiq add -h
-usage: poetiq add [-h] [--split [DIR]] [--local PATH] package
+usage: poetiq add [-h] [--split DIR] [--local PATH] package
 
 positional arguments:
-  package        Package source (name, https, git)
+  package       Package source (name, https, git)
 
 options:
-  -h, --help     show this help message and exit
-  --split [DIR]  Add to split pyproject.toml (specified directory or all)
-  --local PATH   Add local dependency to poetiq.toml in given path
+  -h, --help    show this help message and exit
+  --split DIR   Add to split pyproject.toml file in specified DIR
+  --local PATH  Add local dependency to poetiq.toml in given path
 ```
 
 Running `poetiq add package-name` is equivalent to `poetry add package-name`.
@@ -132,38 +131,60 @@ Specifying directory `--split DIR` will `poetry lock` only in that directory.
 
 ```bash
 $ poetiq new -h
-usage: poetiq new [-h] [--type {package,app}] [--db-type {sqlite,psql,none}]
-                  [--dev-sqlite] [--pydantic-table] [--mongodb] [--settings]
-                  [--progressbar] [--my-base-model]
-                  name
+usage: poetiq new [-h] {package,app} ...
+
+positional arguments:
+  {package,app}
+    package      python package setup
+    app          synchronous 3-tier request-response app template setup
+
+options:
+  -h, --help     show this help message and exit
+```
+
+Main note: `poetry new package-name` complains if directory `package-name` already exists; `poetiq new <template type> project-name` only complains if it is non-empty.
+
+See detailed examples in [Template examples](#templates)
+
+#### package template
+
+```bash
+$ poetiq new package -h
+usage: poetiq new package [-h] [--no-commit] [--settings] [--progressbar] [--my-base-model] name
+
+positional arguments:
+  name             Template/repository name
+
+options:
+  -h, --help       show this help message and exit
+  --no-commit      Do not commit changes
+  --settings       Set up .env Settings class
+  --progressbar    Set up progress bar source code
+  --my-base-model  Set up MyBaseModel class with tree display() + logger
+```
+
+Add `--settings` flag to set up `pydantic_settings` based `Settings` class containing `.env` variables (applies to `package` template only; app template always includes this class / source file)
+
+Add `--progressbar` flag to set up a simple `ProgressBar` util class in a package source file.
+
+#### app template
+
+```bash
+$ poetiq new app -h
+usage: poetiq new app [-h] [--no-commit] [--db {sqlite,psql,none}] [--pydantic-table] [--dev-sqlite] [--mongodb] name
 
 positional arguments:
   name                  Template/repository name
 
 options:
   -h, --help            show this help message and exit
-  --type {package,app}  Template type
-  --db-type {sqlite,psql,none}
-                        Database type (app only)
-  --dev-sqlite          Development mode switch to SQLite (app only)
-  --pydantic-table      Set up pydantic-table for alembic migrations (app only)
-  --mongodb             Add MongoDB service (app only)
-  --settings            Set up .env Settings class (package only)
-  --progressbar         Set up progress bar source code (package only)
-  --my-base-model       Set up MyBaseModel class with tree display() + logger (package
-                        only)
+  --no-commit           Do not commit changes
+  --db {sqlite,psql,none}
+                        Database type
+  --pydantic-table      Set up pydantic-table for alembic migrations
+  --dev-sqlite          Development mode switch to SQLite
+  --mongodb             Add MongoDB service
 ```
-
-Main note: `poetry new package-name` complains if directory `package-name` already exists; `poetiq new package-name` only complains if it is non-empty
-
-Example:
-```bash
-$ poetiq new awesome-package --type pacakge --settings
-```
-
-Available package types:
-- `package` to create a package template (default)
-- `app` to create a simple web app template
 
 Add `--db` flag to set up `alembic` migrations and DB of given type (applies to `app` template type only)
 
@@ -175,12 +196,6 @@ Add `--dev-sqlite` flag to set up dual psql/SQLite setup with switch to SQLite v
 
 Add `--mongodb` flag to set up MongoDB service in `docker-compose.yml` and related source files and dependencies in the app code (app only).
 
-Add `--settings` flag to set up `pydantic_settings` based `Settings` class containing `.env` variables (applies to `package` template only; app template always includes this class / source file)
-
-Add `--progressbar` flag to set up a simple `ProgressBar` util class in a package source file.
-
-See detailed examples in [Template examples](#templates)
-
 ### Update template
 
 Run `poetiq update` inside an existing poetiq template to update it after poetiq itself was updated (new functionalities, bugfixes).
@@ -191,41 +206,85 @@ See detailed examples in [Template examples](#templates)
 
 ### Set up functionality
 
-```bash
-$ poetiq setup -h
-usage: poetiq setup [-h] [--db-type {sqlite,psql}] [--dev-sqlite] [--pydantic-table]
-                    [--subfolder SUBFOLDER] [--no-commit]
-                    {vscode,gitignore,db,logger}
-
-positional arguments:
-  {vscode,gitignore,db,logger}
-                        Type of functionality
-
-options:
-  -h, --help            show this help message and exit
-  --db-type {sqlite,psql}
-                        Database type (db only)
-  --dev-sqlite          Development mode switch to SQLite (db only)
-  --pydantic-table      Set up pydantic-table for alembic migrations (db only)
-  --subfolder SUBFOLDER
-                        Subfolder of setup (logger only)
-  --no-commit           Do not commit changes
-```
-
-Single functionalities set up in current directory:
-- `poetiq setup vscode` - creates/updates `.vscode` setup
-- `poetiq setup gitignore` - creates/updates `.gitignore`
-- `poetiq setup db --db psql --dev-sqlite` - sets up psql DB with dev mode switch to SQLite
+Functionality set up in current directory.
 
 If directory is a git repository, will commit changes unless `--no-commit` flag is provided.
 
 See detailed examples in [Functionality setup examples](#functionalities)
 
+```bash
+$ poetiq setup -h
+usage: poetiq setup [-h] {vscode,gitignore,logger,db} ...
+
+positional arguments:
+  {vscode,gitignore,logger,db}
+    vscode              vscode setup
+    gitignore           gitignore setup
+    logger              logger setup
+    db                  db setup
+
+options:
+  -h, --help            show this help message and exit
+```
+
+Usage for standard basic setup types
+
+```bash
+$ poetiq setup <type> -h
+usage: poetiq setup <type> [-h] [--no-commit]
+
+options:
+  -h, --help   show this help message and exit
+  --no-commit  Do not commit changes
+```
+
+Current basic setups:
+
+- `vscode`: set up `settings.json` and `launch.json` in `.vscode`
+- `gitignore`: set up standard python `.gitignore`
+
+#### Logger setup
+
+```bash
+$ poetiq setup logger -h
+usage: poetiq setup logger [-h] [--no-commit] [--subfolder SUBFOLDER]
+
+options:
+  -h, --help            show this help message and exit
+  --no-commit           Do not commit changes
+  --subfolder SUBFOLDER
+```
+
+Additional optional flag `--subfolder` to indicate where logger source file should be set up (default current directory)
+
+#### DB setup
+
+```bash
+$ poetiq setup db -h
+usage: poetiq setup db [-h] [--no-commit] --db-type {sqlite,psql} [--pydantic-table] [--dev-sqlite]
+
+options:
+  -h, --help            show this help message and exit
+  --no-commit           Do not commit changes
+  --db-type {sqlite,psql}
+                        Database type
+  --pydantic-table      Set up pydantic-table for alembic migrations
+  --dev-sqlite          Development mode switch to SQLite
+```
+
+Example:
+
+```bash
+poetiq setup db --db psql --dev-sqlite
+```
+
+sets up psql DB with dev mode switch to SQLite
+
 ## Examples
 
 ### Templates
 
-#### `poetiq new awesome-package --type package --settings --progressbar`
+#### `poetiq new package awesome-package --settings --progressbar`
 
 Result
 
@@ -255,7 +314,7 @@ awesome-package
 └── venv # venv with pyproject.toml dependencies: dotenv; poetry and pytest (dev)
 ```
 
-#### `poetiq new awesome-app --type app --db psql --dev-sqlite --mongodb`
+#### `poetiq new app awesome-app --db psql --dev-sqlite --mongodb`
 
 Result
 
@@ -398,7 +457,7 @@ local = [
 1. Add `ActionType.foo` to `choices` for `type` argument of the microfunctionality subparser in `add_microfunctionality_arguments()` (`cli/cli.py`)
 1. Create setup settings `FooSettings` in `poetiq.settings.setup` inheriting from `BaseSetupSettings` with `type` as `Literal[ActionType.foo]`
 1. Add additional settings field if any under `FooSettings` e.g. `field`
-1. Create function adding those settings to given CLI parser in `cli/cli.py` e.g. `add_foo_arguments(parser)` utilizing `FooSettings` to translate them to CLI arguments. Append call to this function under `add_microfunctionality_arguments()`
+1. Create function adding those settings to given CLI parser in `cli/cli.py` e.g. `add_foo_arguments(parser)` utilizing `FooSettings` and `pydantic-parse` to translate them to CLI arguments. Append call to this function under `add_microfunctionality_arguments()`
 1. Add `FooSettings` to accepted setup settings ( `settings.options`)
 1. Create setup class `FooSetup` in a new source file `poetiq.setup.foo` inheriting from a base setup (e.g. `BaseFunctionalitySetup`, `BaseVenvSetup`, or `BaseDependencySetup` )  with `[FooSettings]` (`Generic`) depending on if setup includes python library dependency setup etc. For convenience, define `__init__()` with `settings=FooSettings()`
 1. Define `setup()` method, calling parent `setup()`, and adding specific setup actions for this setup. This method must return `bool` representing whether this setup already existed before.
@@ -419,11 +478,11 @@ After this, this setup is now usable with
 - `poetiq new awesome-app --db psql`
 - `poetiq setup db --db foo`
 
-### `pydantic` <-> `argparse` adapter
+### `pydantic-parse` adapter
 
-Template and setup settings fields are used to set argparse descriptions, defaults, and options to avoid duplications.
+Template and setup settings fields are used to add `argparse` arguments using `pydantic-parse`.
 
-For this reason, even if otherwise unnecessary:
+Defined as `ArgModel` and `ArgField` rather than just `BaseModel` and `Field`.
 - `default` for `type` is always set
 - field type annotation is always set
 - field description is always set
