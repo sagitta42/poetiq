@@ -57,7 +57,7 @@ def add_template_arguments(parser: PydanticArgParser):
         settings_class = SetupTypeSettings.from_action_type(template_type)
 
         choices = (
-            {"db": DBType.with_none(DBType.sql())}
+            {"db_type": DBType.with_none(DBType.sql())}
             if template_type == ActionType.app
             else {}
         )
