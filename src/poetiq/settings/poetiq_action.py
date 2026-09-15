@@ -32,6 +32,7 @@ class InstallSettings(BaseSplitActionSettings):
     package: str = ArgField(
         default="",
         description="Specific package to install in split or local model; otherwise all local/split",
+        optional=True
     )
 
 
