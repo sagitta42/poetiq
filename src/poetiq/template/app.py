@@ -84,17 +84,6 @@ class AppTemplate(BaseTemplate[AppTemplateSettings]):
         self._poetry_add("fastapi")
         self._poetry_add("uvicorn")
 
-    def setup_pyproject(self):
-        """
-        Set up pyproject.toml.
-
-        Additional setup: set package-mode as False and remove build-system section.
-        """
-        super().setup_pyproject()
-
-        self._pyproject_handler.add_section("tool.poetry", {"package-mode": False})
-        self._pyproject_handler.write()
-
     def setup_source_files(self):
         """
         Set up source files.

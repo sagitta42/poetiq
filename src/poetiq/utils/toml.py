@@ -3,7 +3,7 @@ import tomlkit
 from typing import Any
 
 from poetiq.exceptions import PoetiqException
-
+from poetiq.logger import logg
 
 class TomlHandler:
     """
@@ -50,6 +50,7 @@ class TomlHandler:
         if name not in self._toml_dict:
             self._toml_dict[name] = {}
 
+        logg.debug(f"{name}: {self._toml_dict[name]}")
         self._toml_dict[name] |= items
 
     def del_section(self, name: str):
@@ -63,7 +64,7 @@ class TomlHandler:
         with open(self.path, "w") as f:
             tomlkit.dump(self._toml_dict, f)
 
-    def read(self):
+    def read(self, lock: bool = True):
         """
         Read original .toml.
 
@@ -71,7 +72,7 @@ class TomlHandler:
         Otherwise raise error about the second read.
         It is supposed to be read only once, and changes kept track in class.
         """
-        if self._toml_dict_original is not None:
+        if lock and self._toml_dict_original is not None:
             raise RuntimeError(f"{self.path} has already been read!")
         if self.path.exists():
             with open(self.path, "rb") as f:
