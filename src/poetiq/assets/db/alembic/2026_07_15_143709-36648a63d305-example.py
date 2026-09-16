@@ -31,5 +31,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    opp.delete_by(ExampleTable, id=id)
+    opp.delete_where(ExampleTable, id=id)
     opp.drop_table(ExampleTable)
