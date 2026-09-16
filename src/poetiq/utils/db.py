@@ -1,9 +1,11 @@
 from typing import Any, Optional, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, Field
+
+from poetiq.base_model import TreeBaseModel
 
 
-class EnvVar(BaseModel):
+class EnvVar(TreeBaseModel):
     """
     Environment variable in .env template or docker-compose.yml
     """
@@ -29,7 +31,7 @@ class EnvVar(BaseModel):
         return ret
 
 
-class DBEnvVars(BaseModel):
+class DBEnvVars(TreeBaseModel):
     """
     Database environment variables
     """

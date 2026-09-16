@@ -150,5 +150,5 @@ class DBSetupBuilder:
 
         ret = db_env_vars_class(host=host_var, **db_env_kwargs)
 
-        ret.display(header=f"Env vars for {db_type}")
+        ret.display(header=f"Env vars for {db_type}", debug=True)
         return ret
