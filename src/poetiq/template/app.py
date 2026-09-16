@@ -26,7 +26,7 @@ class AppTemplate(BaseTemplate[AppTemplateSettings]):
             if settings.db_type == DBType.none
             else db_setup_factory.build(
                 self.path,
-                DBSettings(db_type=settings.db_type, dev_sqlite=settings.dev_sqlite),
+                DBSettings(db_type=settings.db_type, dev_sqlite=settings.dev_sqlite, pydantic_table=settings.pydantic_table),
                 core=False,
             )
         )
