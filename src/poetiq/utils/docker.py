@@ -11,12 +11,14 @@ from poetiq.utils.db import EnvVar
 class DockerImage(enum.StrEnum):
     psql = "postgres:16-alpine"
     mongo = "mongo:8"
+    mysql = "mysql:latest"
 
     @classmethod
     def from_db_type(cls, db_type: DBType) -> str:
         return cls[db_type.name].value
 
 
+# TODO: use
 class DockerHealthCheck(enum.StrEnum):
     psql = '[ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]'
     mongo = "mongosh --eval \"db.adminCommand('ping')\" --quiet"
@@ -24,6 +26,9 @@ class DockerHealthCheck(enum.StrEnum):
     @classmethod
     def from_db_type(cls, db_type: DBType) -> str:
         return cls[db_type.name].value
+
+
+# TODO: volume
 
 
 class DockerComposeHandler:

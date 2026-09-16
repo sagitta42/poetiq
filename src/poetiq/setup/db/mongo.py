@@ -3,14 +3,14 @@ from pathlib import Path
 from poetiq.enums import DBType
 from poetiq.setup.db.base.docker import DockerDBSetup
 from poetiq.settings.setup import DBSettings
-from poetiq.utils.db import ServiceDBEnvVars
+from poetiq.utils.db import HostedDBEnvVars
 
 
-class MongoDBSetup(DockerDBSetup[ServiceDBEnvVars]):
+class MongoDBSetup(DockerDBSetup[HostedDBEnvVars]):
     def __init__(
         self,
         path: Path,
-        env_vars: ServiceDBEnvVars,
+        env_vars: HostedDBEnvVars,
         settings: DBSettings = DBSettings(db_type=DBType.mongo),
         core: bool = False,
     ) -> None:

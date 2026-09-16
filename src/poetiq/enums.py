@@ -1,5 +1,6 @@
 import enum
 
+
 class ActionType(enum.StrEnum):
     package = "package"
     app = "app"
@@ -18,10 +19,10 @@ class ActionType(enum.StrEnum):
         return [item.value for item in cls]
 
 
-
 class DBType(enum.StrEnum):
     sqlite = "sqlite"
     psql = "psql"
+    mysql = "mysql"
     mongo = "mongo"
     none = "none"
 
@@ -41,16 +42,16 @@ class DBType(enum.StrEnum):
         """
         SQL based DB types.
         """
-        sql_types = [cls.sqlite, cls.psql]
+        sql_types = [cls.sqlite, cls.psql, cls.mysql]
         ret = cls._values(sql_types)
         return ret
 
     @classmethod
-    def service(cls):
+    def service(cls) -> list["DBType"]:
         """
         Service DBs
         """
-        ret = [cls.psql, cls.mongo]
+        ret = [cls.psql, cls.mysql, cls.mongo]
         return ret
 
     @classmethod
@@ -67,4 +68,4 @@ class DBType(enum.StrEnum):
         Return str values of list of given db types.
         """
         ret = [db.value for db in db_types]
-        return ret        
+        return ret

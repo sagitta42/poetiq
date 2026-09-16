@@ -49,7 +49,6 @@ class DBSettings(BaseSetupSettings):
         default=ActionType.db, description="Setup type", cli=False
     )
     db_type: DBType = ArgField(
-        default=DBType.sqlite,
         description="Database type",
         flag=True,
         optional=False,

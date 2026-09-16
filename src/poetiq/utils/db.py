@@ -34,6 +34,7 @@ class DBEnvVars(BaseModel):
     Database environment variables
     """
 
+    model_config = ConfigDict(extra="forbid")
     host: EnvVar
 
     @property
@@ -51,16 +52,20 @@ class SqlDBEnvVars(DBEnvVars):
     name: EnvVar
 
 
-class ServiceDBEnvVars(DBEnvVars):
+class HostedDBEnvVars(DBEnvVars):
     port: EnvVar | None
     user: EnvVar
     password: EnvVar
 
 
-class PsqlDBEnvVars(SqlDBEnvVars, ServiceDBEnvVars):
+class HostedSqlDBEnvVars(SqlDBEnvVars, HostedDBEnvVars):
     pass
+
+
+class MySqlDBEnvVars(HostedSqlDBEnvVars):
+    root_password: EnvVar
 
 
 T_DBEnvVars = TypeVar("T_DBEnvVars", bound=DBEnvVars)
 T_SqlDBEnvVars = TypeVar("T_SqlDBEnvVars", bound=SqlDBEnvVars)
-T_ServiceDBEnvVars = TypeVar("T_ServiceDBEnvVars", bound=ServiceDBEnvVars)
+T_ServiceDBEnvVars = TypeVar("T_ServiceDBEnvVars", bound=HostedDBEnvVars)

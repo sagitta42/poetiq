@@ -3,7 +3,7 @@ from pathlib import Path
 from poetiq.setup.db.base.single import SingleDBSetup
 from poetiq.logger import logg
 from poetiq.settings.setup import DBSettings
-from poetiq.utils.db import ServiceDBEnvVars, T_ServiceDBEnvVars
+from poetiq.utils.db import HostedDBEnvVars, T_ServiceDBEnvVars
 from poetiq.utils.docker import DockerComposeServiceHandler
 
 
@@ -25,7 +25,7 @@ class DockerDBSetup(SingleDBSetup[T_ServiceDBEnvVars]):
         self._service = DockerComposeServiceHandler(self.path, self.service_name)
 
     @property
-    def docker_env_vars(self) -> ServiceDBEnvVars:
+    def docker_env_vars(self) -> HostedDBEnvVars:
         """
         Docker env variables.
 

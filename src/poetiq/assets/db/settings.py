@@ -12,11 +12,17 @@ from sqlalchemy import URL
 
 class DBType(enum.StrEnum):
     sqlite = "sqlite"
+    mysql = "mysql"
     psql = "psql"
+
+    @classmethod
+    def hosted(cls) -> list["DBType"]:
+        return [cls.mysql, cls.psql]
 
 
 class DBDriver(enum.StrEnum):
     sqlite = "sqlite"
+    mysql = "mysql+pymysql"
     psql = "postgresql+psycopg"
 
     @classmethod
@@ -40,15 +46,17 @@ class DBSettings(Settings):
     db_password: str | None = Field(default=None, description="DB password (psql only)")
 
     @property
-    def psql_fields(self) -> list[str]:
+    def hosted_db_fields(self) -> list[str]:
         return ["db_port", "db_user", "db_password"]
 
-    def psql_component(self, name: str) -> Any:
+    def hosted_db_component(self, name: str) -> Any:
         return getattr(self, name)
 
     @property
-    def has_psql_components(self) -> bool:
-        ret = not any(self.psql_component(name) is None for name in self.psql_fields)
+    def has_hosted_db_components(self) -> bool:
+        ret = not any(
+            self.hosted_db_component(name) is None for name in self.hosted_db_fields
+        )
         return ret
 
     @model_validator(mode="after")
@@ -56,15 +64,15 @@ class DBSettings(Settings):
         """
         Check that Settings contain full necessary DB info
         """
-        if self.db_type == DBType.sqlite and self.has_psql_components:
+        if self.db_type == DBType.sqlite and self.has_hosted_db_components:
             logging.warning(
                 f"{self.db_type} driver is requested but extra psql components are found; ignoring"
             )
 
-        if self.db_type == DBType.psql:
-            for c in self.psql_fields:
-                if self.psql_component(c) is None:
-                    raise ValueError(f"psql component {c} missing from .env!")
+        if self.db_type in DBType.hosted():
+            for c in self.hosted_db_fields:
+                if self.hosted_db_component(c) is None:
+                    raise ValueError(f"{self.db_type} component {c} missing from .env!")
 
         return self
 
@@ -92,7 +100,7 @@ class SqliteUrl(DBUrl):
         return url
 
 
-class PsqlUrl(DBUrl):
+class HostedDBUrl(DBUrl):
     def create(self, settings: DBSettings) -> URL:
         url = URL.create(
             drivername=self._get_drivername(),
@@ -107,7 +115,8 @@ class PsqlUrl(DBUrl):
 
 class DBUrlClass(enum.Enum):
     sqlite = SqliteUrl
-    psql = PsqlUrl
+    mysql = HostedDBUrl
+    psql = HostedDBUrl
 
     @classmethod
     def from_db_type(cls, db_type: DBType):
