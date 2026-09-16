@@ -182,10 +182,10 @@ class AppTemplate(BaseTemplate[AppTemplateSettings]):
 
         for db in docker_dbs:
             self._service.update_env_vars(
-                db.docker_env_vars.set_vars, user_service_var_names=False
+                db.dotenv_vars.set_vars, user_service_var_names=False
             )
 
-            db_host = db.docker_env_vars.host.model_copy()
+            db_host = db.docker_env_vars.host
             self._service.set_env_var(db_host.name, db.service_name)
 
         all_services = [self._service] + [db._service for db in docker_dbs]
