@@ -10,6 +10,7 @@ from poetiq.enums import ActionType
 from poetiq.setup.db.factory import DBSetupFactory
 from poetiq.setup.gitignore import GitignoreSetup
 from poetiq.setup.logger import LoggerSetup
+from poetiq.setup.progress_bar import ProgressBarSetup
 from poetiq.setup.vscode import VSCodeSetup
 from poetiq.settings.base import BaseActionSettings, BaseSetupSettings
 from poetiq.settings.template import BaseTemplateSettings
@@ -23,6 +24,7 @@ class ActionSetupClass(enum.Enum):
     vscode = VSCodeSetup
     gitignore = GitignoreSetup
     logger = LoggerSetup
+    progressbar = ProgressBarSetup
     add = AddAction
     install = InstallAction
     lock = LockAction

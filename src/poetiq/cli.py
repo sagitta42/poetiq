@@ -1,4 +1,3 @@
-import argparse
 import enum
 
 from pydantic_parse import PydanticArgParser
@@ -8,6 +7,7 @@ from poetiq.settings.setup import (
     DBSettings,
     GitignoreSetupSettings,
     LoggerSettings,
+    ProgressBarSettings,
     VSCodeSetupSettings,
 )
 from poetiq.settings.template import AppTemplateSettings, PackageTemplateSettings
@@ -33,6 +33,7 @@ class SetupTypeSettings(enum.Enum):
     vscode = VSCodeSetupSettings
     gitignore = GitignoreSetupSettings
     logger = LoggerSettings
+    progressbar = ProgressBarSettings
     db = DBSettings
 
     @classmethod
@@ -87,6 +88,7 @@ def add_microfunctionality_arguments(parser: PydanticArgParser):
         ActionType.vscode,
         ActionType.gitignore,
         ActionType.logger,
+        ActionType.progressbar,
         ActionType.db,
     ]:
         setup_subparser = subparsers.add_parser(

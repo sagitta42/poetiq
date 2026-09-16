@@ -7,6 +7,7 @@ from poetiq.settings.setup import (
     DBSettings,
     GitignoreSetupSettings,
     LoggerSettings,
+    ProgressBarSettings,
     VSCodeSetupSettings,
 )
 from poetiq.settings.template import AppTemplateSettings, PackageTemplateSettings
@@ -16,8 +17,9 @@ AcceptedActionSettings = Annotated[
     | AppTemplateSettings
     | VSCodeSetupSettings
     | GitignoreSetupSettings
-    | DBSettings
     | LoggerSettings
+    | ProgressBarSettings
+    | DBSettings
     | InstallSettings
     | AddSettings
     | LockSettings,
