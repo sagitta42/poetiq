@@ -16,7 +16,7 @@ class BaseActionSettings(ArgModel):
     Adaptor utils to argparse.
     """
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid")
     type: ActionType = ArgField(description="Action type")
 
     # @classmethod

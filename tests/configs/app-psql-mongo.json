@@ -2,7 +2,7 @@
     "settings": {
         "type": "app",
         "name": "app-psql-mongo",
-        "db_type": "psql",
+        "db": "psql",
         "mongodb": true
     }
 }

@@ -2,7 +2,7 @@
     "settings": {
         "type": "app",
         "name": "app-mongo",
-        "db_type": "none",
+        "db": "none",
         "mongodb": true
     }
 }

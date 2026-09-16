@@ -2,6 +2,6 @@
     "settings": {
         "type": "app",
         "name": "app-sqlite",
-        "db_type": "sqlite"
+        "db": "sqlite"
     }
 }

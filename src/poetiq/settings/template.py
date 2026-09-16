@@ -19,7 +19,7 @@ class BaseTemplateSettings(BaseSetupSettings):
     name: str = ArgField(description="Template/repository name")
 
     def core_settings(self) -> dict:
-        ret = self.model_dump(exclude={"no_commit": True, "update": True, "name": True})
+        ret = self.model_dump(exclude={"no_commit": True, "update": True, "name": True}, by_alias=True)
         return ret
 
 
