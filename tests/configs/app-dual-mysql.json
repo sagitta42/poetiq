@@ -1,0 +1,9 @@
+{
+    "settings": {
+        "type": "app",
+        "name": "app-dual-mysql",
+        "db": "mysql",
+        "dev_sqlite": true,
+        "pydantic_table": true
+    }
+}
