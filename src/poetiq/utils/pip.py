@@ -36,6 +36,19 @@ def get_package_source(pip_str: str) -> tuple[str, str]:
     return package, path
 
 
+def get_egg_package(pip_str: str) -> tuple[str, str]:
+    """
+    Extract package name and source from "-e ... egg=package" pip string.
+
+    Example:
+    -e git+https://github.com/user/package-name.git@77c73b422d3326d14c1e930239c00a3ce460bc78#egg=package_name
+    """
+    source, package = pip_str.split("#egg=")
+    source = source.removeprefix("-e").lstrip()
+    package = package.replace("_", "-")
+    return package, source
+
+
 def get_package_version(pip_str: str) -> tuple[str, str]:
     """
     Extract package version from "package==1.2.3" pip string.
@@ -86,7 +99,10 @@ class Pip(BaseCommandRunner):
 
         ret = []
         for package_info in pip_packages:
-            if "@" in package_info:
+            logg.debug(package_info)
+            if package_info.startswith("-e") and "#egg=" in package_info:
+                name, source = get_egg_package(package_info)
+            elif "@" in package_info:
                 name, source = get_package_source(package_info)
                 version = None
             elif "==" in package_info:
