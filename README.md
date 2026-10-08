@@ -451,6 +451,26 @@ local = [
 
 ## development notes
 
+### build
+
+Previously build script was included in `pyproject.toml` as
+```toml
+[tool.poetry.build]
+generate-setup-file = false
+script = "build.py"
+```
+
+This worked until poetiq version v0.1.3 (Sep 7). After that moment in time, something has changed, and `poetry build` with this setup produces `linux_x86` wheel, which is not compatible for PyPI upload. The cause seemes to be deeply rooted, as `manylinux` tag appears second in tag list:
+
+```bash
+$ /opt/venv/bin/python3 -c "from packaging import tags; print(list(tags.sys_tags())[:3])"
+[<cp312-cp312-linux_x86_64 @ 133673282694720>, <cp312-cp312-manylinux_2_39_x86_64 @ 133673282698496>, <cp312-cp312-manylinux_2_38_x86_64 @ 133673282698624>]
+```
+
+Build script has been removed from `pyproject`, and must be run manually as `python build.py && poetry build`, which produces `py3-none-any`.
+
+
+
 ### implement new independent functionality setup (`setup`)
 
 1. Create new `ActionType` e.g. `ActionType.foo` in `enums`
