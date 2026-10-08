@@ -23,10 +23,6 @@ include = [
 ]
 packages = [{include = "poetiq", from = "src"}]
 
-[tool.poetry.build]
-generate-setup-file = false
-script = "build.py"
-
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
