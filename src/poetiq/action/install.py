@@ -34,8 +34,6 @@ class InstallAction(BaseSplitPoetiqAction):
         """
         Run poetry install handling dual dependencies.
 
-        Determine if the --no-root flag is needed based on package mode in pyproject.toml.
-        
         Run "poetry lock" automatically if poetry.lock determined to be too old.
 
         If local flag was given in settings, perform local install:
@@ -71,18 +69,17 @@ class InstallAction(BaseSplitPoetiqAction):
         """
         Perform full poetry install.
 
-        Add --no-root flag if not in package mode.
         Determine poetries of interest (current dir, given split dir, all split dir).
         Perform poetry install with each poetry of interest.
+        Run poetry lock automatically if poetry reports that pyproject.toml
+            changed significantly since poetry.lock was last generated.
+        TODO: flag to create/update (split) poetry.lock.prod file(s)
         """
 
         poetries = self._get_poetries_of_interest()
 
         for poetry in poetries:
             poetry_args = ["install"]
-
-            if not poetry.is_package_mode():
-                poetry_args.append("--no-root")
 
             logg.info(f"Installing from {poetry.path}...", poetiq=True)
             try:

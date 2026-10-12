@@ -51,9 +51,7 @@ options:
   --local        Install local dependencies defined in poetiq.toml
 ```
 
-Perform smart poetry install:
-- automatically add `--no-root` flag if current directory `pyproject.toml` states `package-mode=false`
-- automatically run `poetry lock` if "pyproject.toml changed significantly since poetry.lock was last generated"
+Automatically run `poetry lock` if "pyproject.toml changed significantly since poetry.lock was last generated"
 
 Add `--split` flag if you want to install dependencies from multiple `pyproject.toml` files that are part of your codebase (e.g. a web app with separate services). Provide paths to subfolders containing `pyproject.toml` files in `poetiq.toml` file:
 ```toml
@@ -404,21 +402,10 @@ VSCode update with [poetiq](https://pypi.org/project/poetiq)
 
 ### Install examlpes
 
-Poetiq automatically determines `--no-root` flag analyzing `pyproject.toml` for `package-mode=false`:
-
-```bash
-$ poetiq install --local
-Local install requested but no dual dependencies found in poetiq.toml
-poetiq: poetry install --no-root
-Installing dependencies from lock file
-
-No dependencies to install or update
-```
-
 Poetiq uninstalls and re-installs dual dependencies:
 ```bash
 $ poetiq install --local
-poetiq: poetry install --no-root
+poetiq: poetry install
 Installing dependencies from lock file
 
 No dependencies to install or update

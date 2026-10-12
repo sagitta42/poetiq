@@ -12,7 +12,7 @@ description = "Higher level wrapper for poetry for smart install operations and 
 name = "poetiq"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
-version = "0.2.0"
+version = "0.2.1"
 
 [tool.poetry]
 include = [

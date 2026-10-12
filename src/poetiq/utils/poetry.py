@@ -33,24 +33,11 @@ class Poetry(BaseCommandRunner):
         )
 
         self._pyproject.read(lock=False)
-        self._pyproject.add_section("project", {"package-mode": False})
+        self._pyproject.add_section("tool.poetry", {"package-mode": False})
         self._pyproject.write()        
 
     def add(self, *args, **kwargs):
         self.run("add", *args, **kwargs)
-
-    def is_package_mode(self) -> bool:
-        """
-        Determine if current pyproject is in package mode.
-        """
-        project = self._pyproject.get_section("project")
-        tool_poetry = self._pyproject.get_section("tool.poetry")
-
-        package_mode = project.get("package-mode", None)
-        if package_mode is None:
-            package_mode = tool_poetry.get("package-mode", True)
-
-        return package_mode
 
     def run(self, *args, **kwargs) -> list[str] | None:
         """
