@@ -9,7 +9,8 @@ from poetiq.exceptions import PoetiqException
 
 from poetiq.logger import logg
 from poetiq.settings.poetiq_action import InstallSettings
-from poetiq.utils.pip import PackageInfo, Pip, get_package_source
+from poetiq.utils.package import Package, PackageName
+from poetiq.utils.pip import Pip
 
 
 class InstallSource(enum.StrEnum):
@@ -60,11 +61,11 @@ class InstallAction(BaseSplitPoetiqAction):
         if self._settings.package is None:
             self._full_poetry_install()
         elif not self._settings.local:
-            self._pip.run("install", self._settings.package, info=True)
+            self._install_package_from_pyproject(self._settings.package)
 
         if self._has_dual_packages() and self._settings.local:
             self._uninstall_dual_packages(InstallSource.local)
-            for package in self._get_local_packages_of_interest():
+            for package in self._get_packages_of_interest(InstallSource.local):
                 self._pip.run("install", package.source, info=True)
 
     def _full_poetry_install(self):
@@ -92,11 +93,18 @@ class InstallAction(BaseSplitPoetiqAction):
                     poetry.run("lock")
                     poetry.run(*poetry_args, check=True)
 
+    def _install_package_from_pyproject(self, package_name: PackageName):
+        """
+        Install given package according to pyproject.toml dependency source.
+        """
+        package = self.package_map[InstallSource.pyproject][package_name]
+        self._pip.run("install", package.source_str, info=True)
+
     def _has_dual_packages(self) -> bool:
         """
         Determine if packages with dual dependencies are present.
         """
-        return len(self._all_local_packages) > 0
+        return len(self.all_local_packages) > 0
 
     def _uninstall_dual_packages(self, install_source: InstallSource):
         """
@@ -105,66 +113,72 @@ class InstallAction(BaseSplitPoetiqAction):
         Uninstall dual packages of interest listed as local in poetiq.toml.
         Skip if package is not present in pip freeze.
 
-        Local install: do not perform uninstall if package already points to same install path in pip freeze.
-        Pyproject install: do not perform uninstall if package does NOT point to local path install source.
+        Local install: do not perform uninstall if pip freeze already shows the same install source
+        Pyproject install: do not perform uninstall if package already points to the same install source as pyproject
         """
-        for local_package in self._get_local_packages_of_interest():
-            pip_freeze_info = self._pip.get_package_info(local_package.name)
 
-            if pip_freeze_info is None:
+        for dual_package in self._get_packages_of_interest(InstallSource.local):
+            logg.debug(f"Dual package {dual_package}")
+
+            pip_package = self._pip.get_package(dual_package.name)
+            logg.debug(f"Pip freeze: {pip_package}")
+
+            if pip_package is None:
                 continue
 
             # NOTE: currently with package==1.2.3 source is None
             assert (
-                pip_freeze_info.source is not None
-                or pip_freeze_info.version is not None
-            ), f"neither source nor version in pip freeze info on {local_package.name}"
+                pip_package.source is not None or pip_package.version is not None
+            ), f"neither source nor version in pip freeze info on {dual_package.name}"
 
-            pip_source = (
-                None
-                if pip_freeze_info.source is None
-                else pip_freeze_info.source.removeprefix("file://")
-            )
+            install_source_package = self.package_map[install_source][dual_package.name]
+            logg.debug(f"{install_source} package: {install_source_package}")
 
-            if install_source == InstallSource.local:
-                if local_package.source == pip_source:
-                    continue
-                logg.info(f"{pip_freeze_info.source} -> {local_package.source}")
-            elif install_source == InstallSource.pyproject:
-                # TODO: compare to actual pyproject
-                if pip_source != local_package.source:
-                    continue
+            if install_source_package.source_str == pip_package.source_str:
+                continue
 
             logg.info(
-                f"Replacing dual package {local_package.name} with {install_source} dependency",
+                f"Replacing dual package {dual_package.name} with {install_source} dependency",
                 header=True,
             )
 
-            self._pip.run("uninstall", local_package.name, "-y", info=True)
+            self._pip.run("uninstall", dual_package.name, "-y", info=True)
 
-    def _get_local_packages_of_interest(self) -> list[PackageInfo]:
+    def _get_packages_of_interest(self, install_source: InstallSource) -> list[Package]:
         """
-        Get list of local packages of interest for install.
+        Get list of local/pyproject packages of interest.
 
-        All local packages if no specific package requested.
+        All local/pyproject packages if no specific package requested.
         """
 
+        all_packages = self.package_map[install_source]
         ret = (
-            self._all_local_packages
+            list(all_packages.values())
             if self._settings.package is None
-            else [self._local_package_map[self._settings.package]]
+            else [all_packages[self._settings.package]]
         )
         return ret
 
     @cached_property
-    def _local_package_map(self) -> dict[str, PackageInfo]:
-        ret = {package.name: package for package in self._all_local_packages}
+    def package_map(self) -> dict[InstallSource, dict[PackageName, Package]]:
+        """
+        Map of packages from local (poetiq.toml) and pyproject.toml dependencies.
+        """
+        ret = {
+            InstallSource.local: {
+                package.name: package for package in self.all_local_packages
+            },
+            InstallSource.pyproject: {
+                package.name: package for package in self.all_pyproject_packages
+            },
+        }
+
         return ret
 
     @cached_property
-    def _all_local_packages(self) -> list[PackageInfo]:
+    def all_local_packages(self) -> list[Package]:
         """
-        Get list of all local packages from poetiq toml.
+        Get list of all local packages from poetiq.toml.
         """
         poetiq_settings = self._poetiq_toml.get_section("dependency-groups")
         local_deps_items = poetiq_settings.get("local", [])
@@ -174,6 +188,36 @@ class InstallAction(BaseSplitPoetiqAction):
                 raise PoetiqException(
                     f"Incorrect fromat in {self._toml_name} local dependency: {dep_str}! Use package @ path format"
                 )
-            package, path = get_package_source(dep_str)
-            ret.append(PackageInfo(name=package, source=path, version=None))
+
+            package = Package.from_package_str(dep_str)
+            ret.append(package)
+        return ret
+
+    @cached_property
+    def all_pyproject_packages(self) -> list[Package]:
+        """
+        Get list of all packages from pyproject.toml.
+
+        Account for duplicates in case of split direcotres with multiple pyproject.toml.
+        Check for package source consistency among split pyprojects.
+        """
+        poetries_of_interest = self._get_poetries_of_interest()
+
+        duplicates_check: dict[PackageName, Package] = {}
+
+        ret = []
+        for poetry in poetries_of_interest:
+            dependencies = poetry._pyproject.get_section("project")["dependencies"]
+            for package_str in dependencies:
+                package = Package.from_package_str(package_str)
+
+                if package.name in duplicates_check:
+                    if package != duplicates_check[package.name]:
+                        raise NotImplementedError(
+                            f"Package {package} has different source information in pyproject.toml files in split directories! Currently not supported"
+                        )
+                else:
+                    duplicates_check[package.name] = package
+                    ret.append(package)
+
         return ret

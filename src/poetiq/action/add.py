@@ -1,6 +1,7 @@
 from poetiq.action.base import BaseSplitPoetiqAction
 from poetiq.logger import logg
 from poetiq.settings.poetiq_action import AddSettings
+from poetiq.utils.package import Package
 
 
 class AddAction(BaseSplitPoetiqAction[AddSettings]):
@@ -13,7 +14,7 @@ class AddAction(BaseSplitPoetiqAction[AddSettings]):
         If split, add to pyproject.toml in the specified directory.
         If local, add local path of dependency to poetiq.toml.
         """
-        if self._settings.local == "":
+        if self._settings.local is None:
             self._add_pyproject()
         else:
             self._add_poetiq()
@@ -27,26 +28,16 @@ class AddAction(BaseSplitPoetiqAction[AddSettings]):
 
 
         """
-        package_source = self._settings.package
-
-        prepend = ""
-        if package_source.startswith("git") or package_source.endswith("git"):
-            prepend = "git+"
-            if not package_source.startswith("git@"):
-                prepend += "file://"
-            elif not any(
-                package_source.startswith(start) for start in ["https", "ssh"]
-            ):
-                prepend += "ssh://"
+        package = Package(name="", version=None, source=self._settings.package)
 
         poetries = self._get_poetries_of_interest()
         assert (
             len(poetries) == 1
         ), "poetiq add wants single poetry - main one or single split DIR"
         poetry = poetries[0]
-        
+
         logg.info(f"Adding to {poetry.path}...", poetiq=True)
-        poetry.add(prepend + package_source)
+        poetry.add(package.source_str)
 
     def _add_poetiq(self):
         dep_section = "dependency-groups"

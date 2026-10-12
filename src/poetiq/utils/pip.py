@@ -1,60 +1,10 @@
-import os
 from pathlib import Path
 
-from pydantic import BaseModel
 
 from poetiq.utils.command_runner import BaseCommandRunner
+from poetiq.utils.package import Package, PackageName
 from poetiq.logger import logg
-from poetiq.utils.misc import list_as_args
 from poetiq.utils.venv import Venv
-
-
-class PackageInfo(BaseModel):
-    name: str
-    version: str | None
-    source: str | None
-
-
-def get_package_info(pip_str: str, split_str: str) -> tuple[str, str]:
-    """
-    Get package information splitting dependency string by given split string.
-
-    E.g. package==1.2.3, package @ path
-    """
-    package, info = [component.strip() for component in pip_str.split(split_str)]
-    return package, info
-
-
-def get_package_source(pip_str: str) -> tuple[str, str]:
-    """
-    Extract package name and source from "package @ source" pip string.
-
-    Remove final "/" in filepath.
-    """
-    package, path = get_package_info(pip_str, " @ ")
-    path = path.removesuffix("/")
-    return package, path
-
-
-def get_egg_package(pip_str: str) -> tuple[str, str]:
-    """
-    Extract package name and source from "-e ... egg=package" pip string.
-
-    Example:
-    -e git+https://github.com/user/package-name.git@77c73b422d3326d14c1e930239c00a3ce460bc78#egg=package_name
-    """
-    source, package = pip_str.split("#egg=")
-    source = source.removeprefix("-e").lstrip()
-    package = package.replace("_", "-")
-    return package, source
-
-
-def get_package_version(pip_str: str) -> tuple[str, str]:
-    """
-    Extract package version from "package==1.2.3" pip string.
-    """
-    ret = get_package_info(pip_str, "==")
-    return ret
 
 
 class Pip(BaseCommandRunner):
@@ -77,9 +27,9 @@ class Pip(BaseCommandRunner):
         assert ret is not None
         return ret
 
-    def get_package_info(self, name: str) -> PackageInfo | None:
+    def get_package(self, name: PackageName) -> Package | None:
         """
-        Get info of pip package, if present in pip freeze.
+        Get package from pip freeze (if present).
         """
         all_pip_packages = self.get_all_packages()
         for package in all_pip_packages:
@@ -88,32 +38,21 @@ class Pip(BaseCommandRunner):
 
         return None
 
-    def get_all_packages(self) -> list[PackageInfo]:
+    def get_all_packages(self) -> list[Package]:
         """
-        Get package infos from pip freeze.
-
-        Version if package==1.2.3.
-        Path if package @ path (preserves file:// prefix)
+        Get all packages from pip freeze.
         """
         pip_packages = self.freeze()
 
         ret = []
-        for package_info in pip_packages:
-            logg.debug(package_info)
-            if package_info.startswith("-e") and "#egg=" in package_info:
-                name, source = get_egg_package(package_info)
-            elif "@" in package_info:
-                name, source = get_package_source(package_info)
-                version = None
-            elif "==" in package_info:
-                name, version = get_package_version(package_info)
-                source = None
-            else:
-                raise NotImplementedError(
-                    f"Could not parse pip freeze format {package_info}! Checking for @ or ==; unrecognized"
-                )
+        for package_str in pip_packages:
+            logg.debug(package_str)
+            package = Package.from_package_str(package_str)
 
-            ret.append(PackageInfo(name=name, version=version, source=source))
+            if package.source is not None and any(package.source.startswith(prefix) for prefix in ["file://", "git+"]):
+                package.name = package.name.replace("_", "-")
+
+            ret.append(package)
 
         return ret
 
