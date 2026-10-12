@@ -9,6 +9,7 @@ dependencies = [
   "pydantic-parse (==0.1.2)",
 ]
 description = "Higher level wrapper for poetry for smart install operations and advanced package template creation"
+license-files = ["LICENSE"]
 name = "poetiq"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
