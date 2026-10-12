@@ -11,18 +11,20 @@ from poetiq.settings.base import BaseSplitActionSettings
 class InstallSettings(BaseSplitActionSettings):
     """
     poetiq install settings
+
+    split=None - no split requested, install from pyproject.toml in current directory (standard poetry install)
+    split="" - all directories, install from pyproject.toml in each split directory
+    split="name" - given directory, install from one pyproject.toml from the given direcotry
     """
 
     type: Literal[ActionType.install] = ArgField(
         default=ActionType.install, description="Action type", cli=False
     )
     split: Optional[str] = ArgField(
-        default=None,
         description="Install from split pyproject.toml files (all defined in poetiq.toml or given DIR)",
-        flag=True,
-        optional=True,
-        informative=True,
-        const="",
+        **BaseSplitActionSettings.arg_fields()["split"].as_dict(
+            exclude=["description", "annotation"]
+        ),
     )
     local: bool = ArgField(
         default=False,
@@ -32,7 +34,7 @@ class InstallSettings(BaseSplitActionSettings):
     package: Optional[str] = ArgField(
         default=None,
         description="Specific package to install in split or local model; otherwise all local/split",
-        optional=True
+        optional=True,
     )
 
 
@@ -40,9 +42,13 @@ class AddSettings(BaseSplitActionSettings):
     """
     poetiq add settings
 
+    split=None - no split requested, add package to pyproject.toml in current directory (standard poetry add)
+    split="name" - given directory, add to one pyproject.toml from the given direcotry
+
     Note that unlike the install or lock actions,
         add action does not allow to perform add
         to ALL split directories, and requires specific one to be provided.
+        (in technical terms, --split does not have a constant value, split can only be non-empty string or None)
     """
 
     type: Literal[ActionType.add] = ArgField(
@@ -50,13 +56,13 @@ class AddSettings(BaseSplitActionSettings):
     )
     package: str = ArgField(description="Package source (name, https, git)")
     split: Optional[str] = ArgField(
-        default=None,
         description="Add to split pyproject.toml file in specified DIR",
-        flag=True,
-        optional=True,
+        **BaseSplitActionSettings.arg_fields()["split"].as_dict(
+            exclude=["description", "annotation", "const", "informative"]
+        ),
     )
-    local: str = ArgField(
-        default="",
+    local: Optional[str] = ArgField(
+        default=None,
         description="Add local dependency to poetiq.toml in given path",
         optional=True,
         flag=True,
