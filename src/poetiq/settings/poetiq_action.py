@@ -29,8 +29,8 @@ class InstallSettings(BaseSplitActionSettings):
         description="Install local dependencies defined in poetiq.toml",
         flag=True,
     )
-    package: str = ArgField(
-        default="",
+    package: Optional[str] = ArgField(
+        default=None,
         description="Specific package to install in split or local model; otherwise all local/split",
         optional=True
     )

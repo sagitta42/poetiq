@@ -32,9 +32,10 @@ class InstallAction(BaseSplitPoetiqAction):
 
     def launch(self):
         """
-        Run poetry install handling dual dependencies.
+        Run poetiq install action.
 
         Run "poetry lock" automatically if poetry.lock determined to be too old.
+        Run poetry install handling dual dependencies.
 
         If local flag was given in settings, perform local install:
             - perform full poetry install if no specific package was requested
@@ -56,9 +57,10 @@ class InstallAction(BaseSplitPoetiqAction):
         if self._has_dual_packages() and not self._settings.local:
             self._uninstall_dual_packages(InstallSource.pyproject)
 
-        # FIXME: #39 launch single package pip install in else case
-        if self._settings.package == "":
+        if self._settings.package is None:
             self._full_poetry_install()
+        elif not self._settings.local:
+            self._pip.run("install", self._settings.package, info=True)
 
         if self._has_dual_packages() and self._settings.local:
             self._uninstall_dual_packages(InstallSource.local)
@@ -148,9 +150,9 @@ class InstallAction(BaseSplitPoetiqAction):
         """
 
         ret = (
-            [self._local_package_map[self._settings.package]]
-            if self._settings.package != ""
-            else self._all_local_packages
+            self._all_local_packages
+            if self._settings.package is None
+            else [self._local_package_map[self._settings.package]]
         )
         return ret
 
