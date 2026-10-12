@@ -86,7 +86,7 @@ class Package(BaseModel):
             # TODO: validator
             assert self.version is not None, "must have version if source is null"
             ret = (
-                self.version
+                f"{self.name}{self.version}"
                 if ">" in self.version or "<" in self.version
                 else f"{self.name}=={self.version}"
             )
