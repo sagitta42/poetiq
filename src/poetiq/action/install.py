@@ -134,6 +134,9 @@ class InstallAction(BaseSplitPoetiqAction):
             install_source_package = self.package_map[install_source][dual_package.name]
             logg.debug(f"{install_source} package: {install_source_package}")
 
+            logg.debug(
+                f"{install_source_package.source_str} VS {pip_package.source_str}"
+            )
             if install_source_package.source_str == pip_package.source_str:
                 continue
 
@@ -190,6 +193,8 @@ class InstallAction(BaseSplitPoetiqAction):
                 )
 
             package = Package.from_package_str(dep_str)
+            assert package.source is not None, "package source is null in poetiq.toml"
+            package.source = "file://" + package.source
             ret.append(package)
         return ret
 
