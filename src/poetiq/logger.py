@@ -74,7 +74,7 @@ class Logger:
         short_format = "[%(levelname)s] %(classname)s - %(message)s"
         no_format = ""
         level_format = full_format if log_level == logging.DEBUG else no_format
-        formatter = LevelFormatter(
+        self._formatter = LevelFormatter(
             {
                 logging.DEBUG: full_format,
                 logging.ERROR: level_format,
@@ -83,10 +83,10 @@ class Logger:
             }
         )
 
-        handler = logging.StreamHandler()
-        handler.setFormatter(formatter)
-        handler.setLevel(log_level)
-        self._logger.addHandler(handler)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(self._formatter)
+        stream_handler.setLevel(log_level)
+        self._logger.addHandler(stream_handler)
 
         self._logger.setLevel(log_level)
         self._logger.propagate = False
@@ -115,6 +115,12 @@ class Logger:
     @property
     def is_debug(self) -> bool:
         return self.log_level == logging.DEBUG
+
+    def set_log_file(self, filepath: Path):
+        file_handler = logging.FileHandler(filepath)
+        file_handler.setFormatter(self._formatter)
+        file_handler.setLevel(logging.INFO)
+        self._logger.addHandler(file_handler)
 
     def _log(self, level, message: Any):
         """
