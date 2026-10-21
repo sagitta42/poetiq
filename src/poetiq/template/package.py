@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import subprocess
 
+from poetiq.action.install import InstallAction
+from poetiq.settings.poetiq_action import InstallSettings
 from poetiq.setup.env_settings import EnvSettingsSetup
 from poetiq.setup.logger import LoggerSetup
 from poetiq.setup.progress_bar import ProgressBarSetup
@@ -65,6 +67,9 @@ class PackageTemplate(BaseTemplate[PackageTemplateSettings]):
             self._progressbar_setup.setup()
 
         self.setup_main_script()
+
+        install_action = InstallAction(self.path, InstallSettings())
+        install_action.launch()
 
     def _poetry_init(self):
         """
