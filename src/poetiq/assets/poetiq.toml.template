@@ -1,9 +1,0 @@
-[dependency-groups]
-local = [
-  "my-package @ /path/to/my-package",
-  "python-module @ /path/to/my/fork/of/python-module",
-]
-split=[
-  "subdir_with_pyproject",
-  "another_subdir_with_owb_pyproject"
-]

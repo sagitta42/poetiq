@@ -26,7 +26,11 @@ class AppTemplate(BaseTemplate[AppTemplateSettings]):
             if settings.db_type == DBType.none
             else db_setup_factory.build(
                 self.path,
-                DBSettings(db_type=settings.db_type, dev_sqlite=settings.dev_sqlite, pydantic_table=settings.pydantic_table),
+                DBSettings(
+                    db_type=settings.db_type,
+                    dev_sqlite=settings.dev_sqlite,
+                    pydantic_table=settings.pydantic_table,
+                ),
                 core=False,
             )
         )
@@ -211,3 +215,17 @@ class AppTemplate(BaseTemplate[AppTemplateSettings]):
             os.makedirs(self.path / "app" / app_subfolder, exist_ok=True)
 
         os.makedirs(self.path / "app" / "api" / "routes", exist_ok=True)
+
+    def _setup_poetiq_toml(self):
+        if not self._path_to_poetiq_toml.exists():
+            self._poetiq_toml_handler.add_section(
+                "dependency-groups",
+                {
+                    "split": [
+                        "subdir_with_pyproject",
+                        "another_subdir_with_own_pyproject",
+                    ]
+                },
+            )
+
+        super()._setup_poetiq_toml()

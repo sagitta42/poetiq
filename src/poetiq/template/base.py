@@ -9,7 +9,7 @@ from poetiq.logger import logg
 
 from poetiq.setup.base.poetry import BasePoetrySetup
 from poetiq.utils.path import Dir, File
-from poetiq.utils.template import TemplateLocation
+from poetiq.utils.toml import TomlHandler
 from poetiq.utils.tree import display
 from poetiq.utils.misc import POETIQ_LINK
 
@@ -53,6 +53,9 @@ class BaseTemplate(BasePoetrySetup[T_TemplateSettings]):
 
         self._gitignore = GitignoreSetup(self.path)
         self._env_settings_setup: EnvSettingsSetup | None = None
+
+        self._path_to_poetiq_toml = self.path / "poetiq.toml.template"
+        self._poetiq_toml_handler = TomlHandler(self._path_to_poetiq_toml)
 
     @property
     def title(self) -> str:
@@ -207,11 +210,17 @@ class BaseTemplate(BasePoetrySetup[T_TemplateSettings]):
         Set up poetiq.toml.template file.
         Add poetiq.toml to .gitignore.
         """
-        path_to_toml = self.path / "poetiq.toml.template"
-        if not path_to_toml.exists():
-            self._templates.copy(
-                "poetiq.toml.template", template_location=TemplateLocation.common_ass
+        if not self._path_to_poetiq_toml.exists():
+            self._poetiq_toml_handler.add_section(
+                "dependency-groups",
+                {
+                    "local": [
+                        "my-package @ /path/to/my-package",
+                        "python-module @ /path/to/my/fork/of/python-module",
+                    ]
+                },
             )
+            self._poetiq_toml_handler.write()
 
         File(self.path / ".gitignore").add_new_line("poetiq.toml", prepend=True)
 
