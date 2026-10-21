@@ -1,6 +1,7 @@
 from poetiq.action.base import BaseSplitPoetiqAction
 from poetiq.logger import logg
 from poetiq.settings.poetiq_action import LockSettings
+from poetiq.utils.path import copy_file
 
 
 class LockAction(BaseSplitPoetiqAction[LockSettings]):
@@ -15,3 +16,6 @@ class LockAction(BaseSplitPoetiqAction[LockSettings]):
         for poetry in poetries:
             logg.info(f"Updating poetry.lock in {poetry.path}...", poetiq=True)
             poetry.run("lock")
+
+            if self._settings.prod:
+                copy_file(poetry.path / "poetry.lock", poetry.path / "poetry.lock.prod")

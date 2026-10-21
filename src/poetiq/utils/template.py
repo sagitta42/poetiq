@@ -1,9 +1,9 @@
 import enum
 from pathlib import Path
-import shutil
 
 from poetiq.logger import logg
 from poetiq.enums import ActionType
+from poetiq.utils.path import copy_file
 
 
 class TemplateLocation(str, enum.Enum):
@@ -76,8 +76,7 @@ class TemplateManager:
             subdir=template_subdir,
         )
 
-        logg.debug(f"Copying {path_to_template} -> {path_to_package_file}")
-        shutil.copy(path_to_template, path_to_package_file)
+        copy_file(path_to_template, path_to_package_file)
 
         return path_to_package_file
 

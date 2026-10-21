@@ -96,12 +96,16 @@ class LockSettings(BaseSplitActionSettings):
         default=ActionType.lock, description="Action type", cli=False
     )
     split: Optional[str] = ArgField(
-        default=None,
         description="Update split poetry.lock(s) (all or specified DIR)",
-        optional=True,
+        **BaseSplitActionSettings.arg_fields()["split"].as_dict(
+            exclude=["description"]
+        ),
+    )
+    prod: bool = ArgField(
+        description="Create .prod poetry.lock file(s)",
         flag=True,
-        informative=True,
-        const="",
+        optional=True,
+        default=False,
     )
 
     @property

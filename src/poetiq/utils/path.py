@@ -1,5 +1,8 @@
 import os
 from pathlib import Path
+import shutil
+
+from poetiq.logger import logg
 
 
 class PathUtil:
@@ -75,3 +78,8 @@ class File(PathUtil):
         """
         with open(self._path, "w") as f:
             f.writelines([f"{l}\n" for l in lines])
+
+
+def copy_file(file_to_copy: Path, copy_dest: Path):
+    logg.info(f"Copying {file_to_copy} -> {copy_dest}")
+    shutil.copy(file_to_copy, copy_dest)
