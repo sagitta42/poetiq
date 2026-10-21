@@ -54,8 +54,7 @@ class AppTemplate(BaseTemplate[AppTemplateSettings]):
         Disable package mode.
         """
         os.makedirs(self.path, exist_ok=True)
-
-        super()._poetry_init()
+        self._poetry.init_basic(description=self._settings.description)
 
     def setup(self) -> None:
         """

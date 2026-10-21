@@ -18,7 +18,7 @@ class Poetry(BaseCommandRunner):
         self._pyproject = PyProjectHandler(self.path)
         self._pyproject.read()
 
-    def init_basic(self, name: str | None = None):
+    def init_basic(self, name: str | None = None, description: str = ""):
         """
         Basic poetry init with no structure and no package mode.
         """
@@ -29,12 +29,12 @@ class Poetry(BaseCommandRunner):
             "--name",
             package_name,
             "--description",
-            "",
+            description,
         )
 
         self._pyproject.read(lock=False)
         self._pyproject.add_section("tool.poetry", {"package-mode": False})
-        self._pyproject.write()        
+        self._pyproject.write()
 
     def add(self, *args, **kwargs):
         self.run("add", *args, **kwargs)

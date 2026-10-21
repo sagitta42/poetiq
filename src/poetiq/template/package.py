@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import subprocess
 
 from poetiq.action.install import InstallAction
 from poetiq.settings.poetiq_action import InstallSettings
@@ -11,6 +10,7 @@ from poetiq.settings.setup import DotenvSettings, LoggerSettings, ProgressBarSet
 from poetiq.settings.template import PackageTemplateSettings
 from poetiq.template.base import BaseTemplate
 from poetiq.utils.path import File
+from poetiq.utils.poetry import Poetry
 from poetiq.utils.template import TemplateLocation
 
 
@@ -80,7 +80,7 @@ class PackageTemplate(BaseTemplate[PackageTemplateSettings]):
         Run poetry from same environment from which poetiq is being called
             (not poetry from project's venv - does not exist yet)
         """
-        poetry_args = ["poetry", "new"]
+        poetry_args = ["new", "--description", self._settings.description]
 
         if self.path.exists():
             package = "."
@@ -89,7 +89,7 @@ class PackageTemplate(BaseTemplate[PackageTemplateSettings]):
             package = self.name
             path = self.path.parent
 
-        subprocess.run(poetry_args + [package], cwd=path)
+        Poetry(path).run(*poetry_args, package)
 
     def setup_source_files(self):
         """

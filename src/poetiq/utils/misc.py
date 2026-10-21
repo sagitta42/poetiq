@@ -1,17 +1,24 @@
-from typing import Iterable
+from typing import Any, Iterable
 
 POETIQ_LINK = "[poetiq](https://pypi.org/project/poetiq)"
 
 
-def list_as_args(lst: Iterable) -> str:
+def list_as_args(lst: Iterable[Any]) -> str:
     """
     Transform list into a list of command line arguments.
 
     Example:
-    >>> list_as_args(["install", "--no-root"])
-    "install --no-root"
+    >>> list_as_args(["new", "--description", "awesome description"])
+    'new --description "awesome description"'
     """
-    return " ".join(str(element) for element in lst)
+
+    def strize(element: Any) -> str:
+        ret = str(element)
+        if " " in ret:
+            ret = f'"{ret}"'
+        return ret
+
+    return " ".join(strize(element) for element in lst)
 
 
 def dict_as_args(dct: dict) -> str:

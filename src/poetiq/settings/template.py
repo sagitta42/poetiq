@@ -1,6 +1,6 @@
 from typing import Literal, Self, TypeVar
 
-from pydantic import Field, model_validator
+from pydantic import model_validator
 from pydantic_parse import ArgField
 
 from poetiq.enums import ActionType, DBType
@@ -16,10 +16,19 @@ class BaseTemplateSettings(BaseSetupSettings):
     type: ActionType = ArgField(
         default=ActionType.package, description="Template type", cli=False
     )
-    name: str = ArgField(description="Template/repository name")
+    name: str = ArgField(description="Project/repository name")
+    description: str = ArgField(description="Project description", flag=True, alt="-d")
 
     def core_settings(self) -> dict:
-        ret = self.model_dump(exclude={"no_commit": True, "update": True, "name": True}, by_alias=True)
+        ret = self.model_dump(
+            exclude={
+                "no_commit": True,
+                "update": True,
+                "name": True,
+                "description": True,
+            },
+            by_alias=True,
+        )
         return ret
 
 
