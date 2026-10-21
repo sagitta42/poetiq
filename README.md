@@ -108,11 +108,12 @@ Use `--local` flag and path to a local clone/repository as `poetiq add package-n
 
 ```bash
 $ poetiq lock -h
-usage: poetiq lock [-h] [--split [DIR]]
+usage: poetiq lock [-h] [--split [DIR]] [--prod]
 
 options:
   -h, --help     show this help message and exit
   --split [DIR]  Update split poetry.lock(s) (all or specified DIR)
+  --prod         Create .prod poetry.lock file(s)
 ```
 
 Running `poetiq lock` is equivalent to `poetry lock`.
@@ -120,6 +121,8 @@ Running `poetiq lock` is equivalent to `poetry lock`.
 Adding `--split` will perform `poetry lock` for each split directory listed in `poetiq.toml` (see above sections for examples).
 
 Specifying directory `--split DIR` will `poetry lock` only in that directory.
+
+Adding `--prod` will copy `poetry.lock` file(s) as `poetry.lock.prod`
 
 ### Init template
 
