@@ -28,10 +28,9 @@ class AnsiColor(enum.StrEnum):
 
         Bold not implemented for 8 bit colors.
         """
-        if self.is_8bit:
-            style = AnsiStyle.fg8bit
-        else:
-            style = AnsiStyle.bold if bold else AnsiStyle.normal
+        style = AnsiStyle.fg8bit if self.is_8bit else AnsiStyle.normal
+        if bold:
+            style = f"{AnsiStyle.bold};{style}" if self.is_8bit else AnsiStyle.bold
 
         ret = f"{AnsiStyle.start}{style};{self}m{message}{AnsiStyle.end}"
         return ret
