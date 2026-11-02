@@ -2,7 +2,7 @@ import enum
 import inspect
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Type
 from dotenv import dotenv_values
 
 
@@ -91,9 +91,15 @@ class Logger:
         self._logger.setLevel(log_level)
         self._logger.propagate = False
 
-    def info(self, message: Any, header: bool = False, poetiq: bool = False, frame: bool = False):
+    def info(
+        self,
+        message: Any,
+        header: bool = False,
+        poetiq: bool = False,
+        frame: bool = False,
+    ):
         if frame:
-            line = "+" + "-"*(len(message) + 2) + "+"
+            line = "+" + "-" * (len(message) + 2) + "+"
             title = f"+ {message} +"
             components = [line, title, line]
 
@@ -168,3 +174,72 @@ class Logger:
 env_config = dotenv_values(Path.cwd() / ".env")
 is_debug = env_config.get("DEBUG_POETIQ", "").lower() in ("true", "1")
 logg = Logger(log_level=logging.DEBUG if is_debug else logging.INFO)
+
+if __name__ == "__main__":
+    from pydantic_parse import ArgField, ArgModel, PydanticArgParser
+
+    class BaseCallSettings(ArgModel):
+        message: Any = ArgField(description="Message to display in log")
+
+    class InfoSettings(BaseCallSettings):
+        header: bool = ArgField(
+            description="Message is header (bold and green)",
+            default=False,
+            flag=True,
+            optional=True,
+        )
+        poetiq: bool = ArgField(
+            description="Message is poetiq (purple)",
+            default=False,
+            flag=True,
+            optional=True,
+        )
+        frame: bool = ArgField(
+            description="Frame the message",
+            default=False,
+            flag=True,
+            optional=True,
+        )
+
+    class WarningSettings(BaseCallSettings):
+        important: bool = ArgField(
+            description="Warning is important (bold)",
+            default=False,
+            flag=True,
+            optional=True,
+        )
+
+    class LoggerCall(enum.StrEnum):
+        info = "info"
+        error = "error"
+        warning = "warning"
+        debug = "debug"
+        header = "header"
+
+    class CallSettings(enum.Enum):
+        info = InfoSettings
+        error = BaseCallSettings
+        warning = WarningSettings
+        debug = BaseCallSettings
+        header = BaseCallSettings
+
+        @classmethod
+        def from_logger_call(cls, logger_call: LoggerCall) -> Type[BaseCallSettings]:
+            return cls[logger_call.name].value
+
+    parser = PydanticArgParser()
+    subparsers = parser.add_subparsers(dest="logger_call")
+
+    for call_type in LoggerCall:
+        subparser = subparsers.add_parser(call_type.value)
+        subparser_args = CallSettings.from_logger_call(call_type)
+        subparser.add_arguments_from_model(subparser_args)
+
+    args = parser.parse_args()
+    logg.debug(args)
+    args_dict = vars(args)
+    call_type = LoggerCall(args_dict.pop("logger_call"))
+    call_function = getattr(logg, call_type.value)
+    call_settings = CallSettings.from_logger_call(call_type)(**args_dict)
+
+    call_function(**call_settings.arg_dump())
