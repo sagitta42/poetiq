@@ -91,7 +91,17 @@ class Logger:
         self._logger.setLevel(log_level)
         self._logger.propagate = False
 
-    def info(self, message: Any, header: bool = False, poetiq: bool = False):
+    def info(self, message: Any, header: bool = False, poetiq: bool = False, frame: bool = False):
+        if frame:
+            line = "+" + "-"*(len(message) + 2) + "+"
+            title = f"+ {message} +"
+            components = [line, title, line]
+
+            for comp in components:
+                self.info(comp, header=header, poetiq=poetiq, frame=False)
+
+            return
+
         if poetiq:
             color = AnsiColor.lila
         elif header:
