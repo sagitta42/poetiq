@@ -57,11 +57,4 @@ class BaseSetup(BaseAction[T_SetupSettings]):
         Announce the setup title at launch rather than setup beginning if core.
         """
         if self._core:
-            line = "-" * 60
-            title = f"Setting up {self.title}"
-            char_diff = len(line) - len(title)
-            char_space = char_diff - 4
-            filler = " " * int(char_space / 2)
-            logg.info(line, header=True)
-            logg.info(f"| {filler}{title}{filler} |", header=True)
-            logg.info(line, header=True)
+            logg.info(f"Setting up {self.title}", frame=True, header=True)
