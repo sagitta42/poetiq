@@ -18,13 +18,12 @@ class InstallSettings(BaseSplitActionSettings):
     """
 
     type: Literal[ActionType.install] = ArgField(
-        default=ActionType.install, description="Action type", cli=False
+        default=ActionType.install,
+        **BaseSplitActionSettings.get_arg_params("type", exclude="default"),
     )
     split: Optional[str] = ArgField(
         description="Install from split pyproject.toml files (all defined in poetiq.toml or given DIR)",
-        **BaseSplitActionSettings.arg_fields()["split"].as_dict(
-            exclude=["description", "annotation"]
-        ),
+        **BaseSplitActionSettings.get_arg_params("split", exclude="description"),
     )
     local: bool = ArgField(
         default=False,
@@ -52,13 +51,14 @@ class AddSettings(BaseSplitActionSettings):
     """
 
     type: Literal[ActionType.add] = ArgField(
-        default=ActionType.add, description="Action type", cli=False
+        default=ActionType.add,
+        **BaseSplitActionSettings.get_arg_params("type", exclude="default"),
     )
     package: str = ArgField(description="Package source (name, https, git)")
     split: Optional[str] = ArgField(
         description="Add to split pyproject.toml file in specified DIR",
-        **BaseSplitActionSettings.arg_fields()["split"].as_dict(
-            exclude=["description", "annotation", "const", "informative"]
+        **BaseSplitActionSettings.get_arg_params(
+            "split", exclude=["description", "const", "informative"]
         ),
     )
     local: Optional[str] = ArgField(
@@ -93,13 +93,12 @@ class AddSettings(BaseSplitActionSettings):
 
 class LockSettings(BaseSplitActionSettings):
     type: Literal[ActionType.lock] = ArgField(
-        default=ActionType.lock, description="Action type", cli=False
+        default=ActionType.lock,
+        **BaseSplitActionSettings.get_arg_params("type", exclude="default"),
     )
     split: Optional[str] = ArgField(
         description="Update split poetry.lock(s) (all or specified DIR)",
-        **BaseSplitActionSettings.arg_fields()["split"].as_dict(
-            exclude=["description", "annotation"]
-        ),
+        **BaseSplitActionSettings.get_arg_params("split", exclude="description"),
     )
     prod: bool = ArgField(
         description="Create .prod poetry.lock file(s)",

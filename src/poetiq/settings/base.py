@@ -1,9 +1,6 @@
-from abc import abstractmethod
-import enum
-from typing import Any, Optional, TypeVar, Union, get_args, get_origin
+from typing import Optional, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic.fields import FieldInfo
+from pydantic import ConfigDict
 from pydantic_parse import ArgField, ArgModel
 
 from poetiq.enums import ActionType
@@ -17,7 +14,7 @@ class BaseActionSettings(ArgModel):
     """
 
     model_config = ConfigDict(extra="forbid")
-    type: ActionType = ArgField(description="Action type")
+    type: ActionType = ArgField(description="Action type", cli=False, default=None)
 
     # @classmethod
     # def alias(cls, arg: str) -> str:
@@ -82,7 +79,10 @@ class BaseSetupSettings(BaseActionSettings):
     Base class for settings for any type of setup.
     """
 
-    type: ActionType = ArgField(description="Setup type")
+    type: ActionType = ArgField(
+        description="Setup type",
+        **BaseActionSettings.get_arg_params("type", exclude="description"),
+    )
     no_commit: bool = ArgField(
         default=False, description="Do not commit changes", flag=True
     )

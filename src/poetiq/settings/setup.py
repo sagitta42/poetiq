@@ -18,25 +18,29 @@ class ItemSetupSettings(BaseSetupSettings):
 # TODO: subparser dest = type
 class VSCodeSetupSettings(BaseSetupSettings):
     type: Literal[ActionType.vscode] = ArgField(
-        default=ActionType.vscode, description="Setup type", cli=False
+        default=ActionType.vscode,
+        **BaseSetupSettings.get_arg_params("type", exclude="default"),
     )
 
 
 class GitignoreSetupSettings(BaseSetupSettings):
     type: Literal[ActionType.gitignore] = ArgField(
-        default=ActionType.gitignore, description="Setup type", cli=False
+        default=ActionType.gitignore,
+        **BaseSetupSettings.get_arg_params("type", exclude="default"),
     )
 
 
 class ProgressBarSettings(ItemSetupSettings):
     type: Literal[ActionType.progressbar] = ArgField(
-        default=ActionType.progressbar, description="Setup type", cli=False
+        default=ActionType.progressbar,
+        **BaseSetupSettings.get_arg_params("type", exclude="default"),
     )
 
 
 class LoggerSettings(ItemSetupSettings):
     type: Literal[ActionType.logger] = ArgField(
-        default=ActionType.logger, description="Setup type", cli=False
+        default=ActionType.logger,
+        **BaseSetupSettings.get_arg_params("type", exclude="default"),
     )
 
 
@@ -46,7 +50,8 @@ class DBSettings(BaseSetupSettings):
     """
 
     type: Literal[ActionType.db] = ArgField(
-        default=ActionType.db, description="Setup type", cli=False
+        default=ActionType.db,
+        **BaseSetupSettings.get_arg_params("type", exclude="default"),
     )
     db_type: DBType = ArgField(
         description="Database type",
@@ -89,5 +94,6 @@ class DotenvSettings(ItemSetupSettings):
     """
 
     type: Literal[ActionType.envsettings] = ArgField(
-        default=ActionType.envsettings, description="Setup type", cli=False
+        default=ActionType.envsettings,
+        **ItemSetupSettings.get_arg_params("type", exclude="default"),
     )

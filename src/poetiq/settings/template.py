@@ -14,7 +14,9 @@ class BaseTemplateSettings(BaseSetupSettings):
     """
 
     type: ActionType = ArgField(
-        default=ActionType.package, description="Template type", cli=False
+        default=ActionType.package,
+        description="Template type",
+        **BaseSetupSettings.get_arg_params("type", exclude=["default", "description"]),
     )
     name: str = ArgField(description="Project/repository name")
     description: str = ArgField(description="Project description", flag=True, alt="-d")
@@ -40,7 +42,8 @@ class PackageTemplateSettings(BaseTemplateSettings):
     """
 
     type: Literal[ActionType.package] = ArgField(
-        default=ActionType.package, description="Template type", cli=False
+        default=ActionType.package,
+        **BaseTemplateSettings.get_arg_params("type", exclude="default"),
     )
     settings: bool = ArgField(
         default=False, description="Set up .env Settings class", flag=True
@@ -65,7 +68,8 @@ class AppTemplateSettings(BaseTemplateSettings, DBSettings):
     """
 
     type: Literal[ActionType.app] = ArgField(
-        default=ActionType.app, description="Template type", cli=False
+        default=ActionType.app,
+        **BaseTemplateSettings.get_arg_params("type", exclude="default"),
     )
     db_type: DBType = ArgField(
         default=DBType.none,
