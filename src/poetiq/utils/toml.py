@@ -102,5 +102,8 @@ class PyProjectHandler(TomlHandler):
             raise PoetiqException(
                 f"No [tool.poetiq] section found in pyproject.toml! Cannot auto-udpate.\nLaunch with command line arguments used to create tempalte with poetiq new; or add them under tool.poetiq manually"
             )
-        settings["name"] = self.get_section("project")["name"]
+
+        for field in ["name", "description"]:
+            settings[field] = self.get_section("project")[field]
+            
         return settings

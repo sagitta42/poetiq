@@ -2,6 +2,7 @@
     "settings": {
         "type": "app",
         "name": "app-sqlite",
+        "description": "3-tier request-response app with SQLite database",
         "db": "sqlite"
     }
 }

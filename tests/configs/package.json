@@ -2,6 +2,7 @@
     "settings": {
         "type": "package",
         "name": "my-package",
+        "description": "Awesome package",
         "settings": true,
         "progressbar": false
     }

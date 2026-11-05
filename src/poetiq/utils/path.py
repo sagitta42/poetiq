@@ -81,5 +81,5 @@ class File(PathUtil):
 
 
 def copy_file(file_to_copy: Path, copy_dest: Path):
-    logg.info(f"Copying {file_to_copy} -> {copy_dest}")
+    logg.debug(f"Copying {file_to_copy} -> {copy_dest}")
     shutil.copy(file_to_copy, copy_dest)

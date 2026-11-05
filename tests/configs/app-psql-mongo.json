@@ -2,6 +2,7 @@
     "settings": {
         "type": "app",
         "name": "app-psql-mongo",
+        "description": "3-tier request-response app with PostgreSQL and MongoDB databases",
         "db": "psql",
         "mongodb": true
     }

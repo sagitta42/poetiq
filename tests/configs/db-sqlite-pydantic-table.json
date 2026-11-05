@@ -1,7 +1,7 @@
 {
     "settings": {
         "type": "db",
-        "db": "sqlite",
+        "db_type": "sqlite",
         "pydantic_table": true
     },
     "dir_name": "db-sqlite"

@@ -2,6 +2,7 @@
     "settings": {
         "type": "app",
         "name": "app-psql",
+        "description": "3-tier request-response app with PostgreSQL database",
         "db": "psql"
     }
 }
