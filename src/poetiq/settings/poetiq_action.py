@@ -98,7 +98,7 @@ class LockSettings(BaseSplitActionSettings):
     split: Optional[str] = ArgField(
         description="Update split poetry.lock(s) (all or specified DIR)",
         **BaseSplitActionSettings.arg_fields()["split"].as_dict(
-            exclude=["description"]
+            exclude=["description", "annotation"]
         ),
     )
     prod: bool = ArgField(
