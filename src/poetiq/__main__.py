@@ -16,7 +16,7 @@ from poetiq.settings.poetiq_action import AddSettings, InstallSettings, LockSett
 from poetiq.utils.poetry import Poetry
 
 
-def main():
+def main(help_only: bool = False):
     parser = PydanticArgParser()
     subparsers = parser.add_subparsers(dest="command")
 
@@ -58,9 +58,9 @@ def main():
     )
     add_microfunctionality_arguments(micro_functionality_subparser)
 
-    if len(sys.argv) == 1:
+    if help_only or len(sys.argv) == 1:
         parser.print_help()
-        sys.exit(0)
+        return
 
     args = parser.parse_args()
     logg.debug(vars(args))
